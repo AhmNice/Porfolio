@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      background-image 0.3s ease;
+
+  }
+
+  /* Light Theme */
+  :root body {
+    background-image: radial-gradient(
+      circle at 50% -20%,
+      #f4f6e7 0%,
+      #fafcf2 100%
+    );
+  }
+
+  /* Dark Theme */
+  .dark body {
+    background-image: radial-gradient(
+      circle at 50% -20%,
+      #1e2117 0%,
+      #11140c 100%
+    );
+  }
+
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+@layer utilities {
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .animate-type {
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    animation-name: typing;
+    animation-duration: 1s;
+    animation-timing-function: steps(30, end);
+    animation-fill-mode: forwards;
+  }
+
+  .animate-cursor {
+    animation: blink 1s step-end infinite;
+  }
+}
+
+@layer utilities {
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .animate-fade-in-right {
+    opacity: 0;
+    animation: fadeInRight 0.8s ease-out forwards;
+  }
+}
