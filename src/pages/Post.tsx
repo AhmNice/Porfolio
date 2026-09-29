@@ -122,7 +122,7 @@ const Post = () => {
   // Generate table of contents from markdown headings
   const generateTOC = (content: string) => {
     const headings = content.match(/^###?\s+(.+)$/gm) || [];
-    return headings.map((heading, index) => {
+    return headings.map((heading,) => {
       const text = heading.replace(/^###?\s+/, "");
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       return { text, id, level: heading.startsWith("###") ? 3 : 2 };
