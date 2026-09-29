@@ -3,7 +3,7 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import { Copy, Check } from "lucide-react";
-import { isValidElement, useState } from "react";
+import { isValidElement, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 interface MarkdownViewerProps {
@@ -16,6 +16,49 @@ export const MarkdownViewer = ({
   className = "",
 }: MarkdownViewerProps) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  // Smooth scroll to anchor on page load if there's a hash
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }, 100);
+      }
+    }
+  }, []);
+
+  // Handle smooth scrolling for anchor clicks
+  useEffect(() => {
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+
+      if (anchor && anchor.hash && anchor.hash.startsWith('#')) {
+        e.preventDefault();
+        const id = anchor.hash.replace('#', '');
+        const element = document.getElementById(id);
+
+        if (element) {
+          // Update URL without causing a page reload
+          history.pushState(null, '', anchor.hash);
+
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+    return () => document.removeEventListener('click', handleAnchorClick);
+  }, []);
 
   const handleCopy = (text: string, index: number) => {
     navigator.clipboard.writeText(text).then(
@@ -55,31 +98,100 @@ export const MarkdownViewer = ({
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
         components={{
-          // Headings
+          // Headings with smooth scroll links
           h1: ({ children, id }) => (
             <h1
               id={id}
-              className="font-heading font-bold text-headline-xl text-on-surface mb-6"
+              className="font-heading font-bold text-headline-xl text-on-surface mb-6 scroll-mt-20"
             >
-              {children}
+              {id ? (
+                <a
+                  href={`#${id}`}
+                  className="group flex items-center gap-2 no-underline hover:text-primary transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById(id);
+                    if (element) {
+                      history.pushState(null, '', `#${id}`);
+                      element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                      });
+                    }
+                  }}
+                >
+                  {children}
+                  <span className="opacity-0 group-hover:opacity-100 text-primary text-sm transition-opacity">
+                    #
+                  </span>
+                </a>
+              ) : (
+                children
+              )}
             </h1>
           ),
 
           h2: ({ children, id }) => (
             <h2
               id={id}
-              className="font-heading font-bold text-headline-lg text-on-surface mt-10 mb-4"
+              className="font-heading font-bold text-headline-lg text-on-surface mt-10 mb-4 scroll-mt-20"
             >
-              {children}
+              {id ? (
+                <a
+                  href={`#${id}`}
+                  className="group flex items-center gap-2 no-underline hover:text-primary transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById(id);
+                    if (element) {
+                      history.pushState(null, '', `#${id}`);
+                      element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                      });
+                    }
+                  }}
+                >
+                  {children}
+                  <span className="opacity-0 group-hover:opacity-100 text-primary text-sm transition-opacity">
+                    #
+                  </span>
+                </a>
+              ) : (
+                children
+              )}
             </h2>
           ),
 
           h3: ({ children, id }) => (
             <h3
               id={id}
-              className="font-heading font-bold text-headline-md text-on-surface mt-8 mb-3"
+              className="font-heading font-bold text-headline-md text-on-surface mt-8 mb-3 scroll-mt-20"
             >
-              {children}
+              {id ? (
+                <a
+                  href={`#${id}`}
+                  className="group flex items-center gap-2 no-underline hover:text-primary transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById(id);
+                    if (element) {
+                      history.pushState(null, '', `#${id}`);
+                      element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                      });
+                    }
+                  }}
+                >
+                  {children}
+                  <span className="opacity-0 group-hover:opacity-100 text-primary text-sm transition-opacity">
+                    #
+                  </span>
+                </a>
+              ) : (
+                children
+              )}
             </h3>
           ),
 
@@ -91,16 +203,31 @@ export const MarkdownViewer = ({
           ),
 
           // Links
-          a: ({ children, href }) => (
-            <a
-              href={href}
-              className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {children}
-            </a>
-          ),
+          a: ({ children, href }) => {
+            const isAnchor = href?.startsWith('#');
+            return (
+              <a
+                href={href}
+                className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity"
+                target={isAnchor ? undefined : "_blank"}
+                rel={isAnchor ? undefined : "noopener noreferrer"}
+                onClick={isAnchor ? (e) => {
+                  e.preventDefault();
+                  const id = href && href.replace('#', '');
+                  const element = document.getElementById(id as string);
+                  if (element) {
+                    history.pushState(null, '', href);
+                    element.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                  }
+                } : undefined}
+              >
+                {children}
+              </a>
+            );
+          },
 
           // Blockquote
           blockquote: ({ children }) => (
@@ -154,11 +281,7 @@ export const MarkdownViewer = ({
 
           // Code block wrapper
           pre: ({ children }) => {
-            // Extract the code content from the rendered children to avoid
-            // accessing internal "node" shape which can have different types
-            // (and cause TS errors about missing 'children' on Text).
             const codeContent = extractText(children);
-            // Use index from props or generate one
             const index = Math.random();
 
             return (

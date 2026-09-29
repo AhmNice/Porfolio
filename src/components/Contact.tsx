@@ -7,8 +7,8 @@ import {
   CheckCircle,
   User,
   MessageSquare,
-  ArrowRight
 } from "lucide-react";
+import { useContactStore } from "../store/contact.store";
 
 const Contact = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -18,10 +18,14 @@ const Contact = () => {
     subject: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
+  const sendContactForm = useContactStore((state) => state.sendContactForm);
+  const loading = useContactStore((state) => state.loading);
+  const error = useContactStore((state) => state.error);
+
+  // Intersection Observer for animations
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -29,7 +33,7 @@ const Contact = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (sectionRef.current) {
@@ -39,33 +43,38 @@ const Contact = () => {
     return () => observer.disconnect();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
+    try {
+      const result = await sendContactForm(formData);
 
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 5000);
-    }, 1500);
+      if (result.success) {
+        setIsSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+
+        // Reset success message after 5 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+        }, 5000);
+      }
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
   };
 
   const contactInfo = [
@@ -99,25 +108,28 @@ const Contact = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute -top-40 -left-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"
-          style={{ animationDuration: '8s' }}
+          style={{ animationDuration: "8s" }}
         />
         <div
           className="absolute -bottom-40 -right-40 w-96 h-96 bg-tertiary/5 rounded-full blur-3xl animate-pulse"
-          style={{ animationDuration: '10s', animationDelay: '2s' }}
+          style={{ animationDuration: "10s", animationDelay: "2s" }}
         />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-3xl"
-        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-3xl" />
       </div>
 
-      <div className="w-full px-margin-mobile mt-10 md:px-margin-laptop lg:px-margin-desktop" style={{ maxWidth: '1280px' }}>
+      <div
+        className="w-full px-margin-mobile mt-10 md:px-margin-laptop lg:px-margin-desktop"
+        style={{ maxWidth: "1280px" }}
+      >
         {/* Header */}
         <div className="relative z-10 mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-gutter items-start">
             <div className="lg:col-span-5 xl:col-span-4">
               <div
                 className={`flex items-center gap-3 mb-4 lg:mb-0 transition-all duration-700 ${
-                  isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+                  isVisible
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 -translate-x-10"
                 }`}
               >
                 <span className="w-8 h-[2px] bg-primary hidden lg:block" />
@@ -127,27 +139,35 @@ const Contact = () => {
               </div>
               <h2
                 className={`font-heading text-headline-xl-mobile lg:text-headline-xl font-bold leading-none text-on-surface transition-all duration-700 delay-100 ${
-                  isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+                  isVisible
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 -translate-x-10"
                 }`}
               >
                 Let's Connect
               </h2>
               <p
                 className={`mt-4 font-body text-body-md text-on-surface-variant transition-all duration-700 delay-200 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                  isVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
                 }`}
               >
-                Have a project in mind or want to collaborate? I'd love to hear from you.
+                Have a project in mind or want to collaborate? I'd love to hear
+                from you.
               </p>
             </div>
 
             <div className="lg:col-span-7 xl:col-span-8">
               <p
                 className={`font-body text-body-lg leading-relaxed text-on-surface-variant transition-all duration-700 delay-300 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                  isVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
                 }`}
               >
-                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+                I'm always open to discussing new projects, creative ideas, or
+                opportunities to be part of your vision.
               </p>
             </div>
           </div>
@@ -158,7 +178,9 @@ const Contact = () => {
           {/* Contact Info */}
           <div
             className={`lg:col-span-2 space-y-6 transition-all duration-700 delay-400 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
             }`}
           >
             <div className="bg-surface-container/40 backdrop-blur-sm rounded-2xl p-6 border border-outline-variant/10">
@@ -209,7 +231,9 @@ const Contact = () => {
           {/* Contact Form */}
           <div
             className={`lg:col-span-3 transition-all duration-700 delay-500 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
             }`}
           >
             <div className="bg-surface-container/40 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-outline-variant/10">
@@ -220,7 +244,10 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="name" className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2"
+                    >
                       Your Name
                     </label>
                     <div className="relative">
@@ -231,14 +258,18 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors"
+                        disabled={loading}
+                        className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                         placeholder="Wazobia"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2"
+                    >
                       Email Address
                     </label>
                     <div className="relative">
@@ -249,7 +280,8 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors"
+                        disabled={loading}
+                        className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                         placeholder="wazobia@example.com"
                       />
                     </div>
@@ -257,7 +289,10 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                  <label
+                    htmlFor="subject"
+                    className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2"
+                  >
                     Subject
                   </label>
                   <div className="relative">
@@ -268,14 +303,18 @@ const Contact = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors"
+                      disabled={loading}
+                      className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 pl-10 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                       placeholder="Project Discussion"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/60 mb-2"
+                  >
                     Message
                   </label>
                   <textarea
@@ -284,21 +323,26 @@ const Contact = () => {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 px-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                    disabled={loading}
+                    className="w-full bg-surface-container-high/50 border border-outline-variant/20 rounded-lg py-2.5 px-4 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary/50 transition-colors resize-none disabled:opacity-50"
                     placeholder="Tell me about your project..."
                   />
                 </div>
 
+                {error && (
+                  <p className="text-xs text-red-400 text-center">{error}</p>
+                )}
+
                 <button
                   type="submit"
-                  disabled={isSubmitting || isSubmitted}
+                  disabled={loading || isSubmitted}
                   className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-heading text-sm transition-all duration-300 group ${
                     isSubmitted
                       ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                      : "bg-primary text-on-primary hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5"
+                      : "bg-primary text-on-primary hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   }`}
                 >
-                  {isSubmitting ? (
+                  {loading ? (
                     <>
                       <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Sending...
@@ -323,7 +367,7 @@ const Contact = () => {
         {/* Bottom Decorative Line */}
         <div
           className={`relative mt-16 transition-all duration-1000 delay-700 ${
-            isVisible ? 'opacity-100' : 'opacity-0'
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
           <div className="h-px w-full bg-linear-to-r from-transparent via-outline-variant/30 to-transparent" />

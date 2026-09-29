@@ -11,6 +11,7 @@ import Post from "./pages/Post";
 import { Toaster } from "react-hot-toast";
 import Projects from "./pages/Projects";
 import NotFound from "./pages/NotFound";
+import ProjectDetails from "./pages/Project-details";
 
 function App() {
   const router = createBrowserRouter(
@@ -20,6 +21,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<Post />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:slug" element={<ProjectDetails />} />
         <Route path="*" element={<NotFound />} />
       </Route>,
     ),

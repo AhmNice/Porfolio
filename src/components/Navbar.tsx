@@ -29,15 +29,14 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
   }, [isMenuOpen]);
 
@@ -49,23 +48,22 @@ const Navbar = () => {
       // If on home page, use smooth scroll
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     } else {
       // If on other page, navigate to home with section hash
       window.location.href = `/#${sectionId}`;
-
     }
   };
 
   // Handle hash change when navigating back to home
   useEffect(() => {
     if (isHomePage && location.hash) {
-      const sectionId = location.hash.replace('#', '');
+      const sectionId = location.hash.replace("#", "");
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }, 300); // Delay to ensure DOM is ready
     }
@@ -170,7 +168,9 @@ const Navbar = () => {
               key={item.label}
               onClick={() => handleNavigation(item.href)}
               className={`font-heading text-headline-xl-mobile transition-all duration-300 hover:text-primary cursor-pointer transform hover:scale-110 ${
-                isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+                isMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-4 opacity-0"
               } ${
                 isHomePage && location.hash === `#${item.href}`
                   ? "text-primary"

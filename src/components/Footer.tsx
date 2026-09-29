@@ -1,5 +1,6 @@
-import { Mail, ArrowUpRight, Heart, } from "lucide-react";
-import { Link } from "react-scroll";
+import { Mail, ArrowUpRight, Heart } from "lucide-react";
+import { Link as ScrollLink } from "react-scroll";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 
 // Custom SVG Icons
 const GithubIcon = () => (
@@ -22,26 +23,28 @@ const TwitterIcon = () => (
 
 const Footer = () => {
   const year = new Date().getFullYear();
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   const socialLinks = [
     {
       icon: <GithubIcon />,
-      href: "https://github.com/yourusername",
+      href: "https://github.com/AhmNice",
       label: "GitHub",
     },
     {
       icon: <LinkedInIcon />,
-      href: "https://linkedin.com/in/yourusername",
+      href: "https://www.linkedin.com/in/musa-muhammed-awwal-3bbb46235",
       label: "LinkedIn",
     },
     {
       icon: <TwitterIcon />,
-      href: "https://twitter.com/yourusername",
+      href: "https://twitter.com/ahm_9ice",
       label: "Twitter",
     },
     {
       icon: <Mail size={18} />,
-      href: "mailto:you@example.com",
+      href: "mailto:muhammedawwal770@gmail.com",
       label: "Email",
     },
   ];
@@ -52,12 +55,28 @@ const Footer = () => {
     { label: "Stack", href: "stack" },
     { label: "Contact", href: "contact" },
   ];
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
+
+  // Handle navigation to sections
+  const handleNavigation = (sectionId: string) => {
+    if (isHomePage) {
+      // If on home page, scroll to section
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } else {
+      // If on other page, navigate to home with hash
+      window.location.href = `/#${sectionId}`;
+    }
+  };
+
   return (
     <footer className="relative border-t border-outline-variant/20 bg-surface-container/30 backdrop-blur-sm overflow-hidden">
       {/* Background Decoration */}
@@ -109,15 +128,24 @@ const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    smooth={true}
-                    duration={500}
-                    offset={-80}
-                    className="font-body text-body-sm text-on-surface-variant transition-all duration-300 hover:text-primary hover:translate-x-1 cursor-pointer inline-block"
-                  >
-                    {link.label}
-                  </Link>
+                  {isHomePage ? (
+                    <ScrollLink
+                      to={link.href}
+                      smooth={true}
+                      duration={500}
+                      offset={-80}
+                      className="font-body text-body-sm text-on-surface-variant transition-all duration-300 hover:text-primary hover:translate-x-1 cursor-pointer inline-block"
+                    >
+                      {link.label}
+                    </ScrollLink>
+                  ) : (
+                    <button
+                      onClick={() => handleNavigation(link.href)}
+                      className="font-body text-body-sm text-on-surface-variant transition-all duration-300 hover:text-primary hover:translate-x-1 cursor-pointer inline-block"
+                    >
+                      {link.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -131,16 +159,26 @@ const Footer = () => {
             <p className="font-body text-body-sm text-on-surface-variant mb-4">
               Have a project in mind? Let's work together.
             </p>
-            <Link
-              to="contact"
-              smooth={true}
-              duration={500}
-              offset={-80}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary font-body text-sm transition-all duration-300 hover:bg-primary hover:text-on-primary hover:shadow-lg hover:shadow-primary/20 group cursor-pointer"
-            >
-              Get in Touch
-              <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
+            {isHomePage ? (
+              <ScrollLink
+                to="contact"
+                smooth={true}
+                duration={500}
+                offset={-80}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary font-body text-sm transition-all duration-300 hover:bg-primary hover:text-on-primary hover:shadow-lg hover:shadow-primary/20 group cursor-pointer"
+              >
+                Get in Touch
+                <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </ScrollLink>
+            ) : (
+              <RouterLink
+                to="/#contact"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary font-body text-sm transition-all duration-300 hover:bg-primary hover:text-on-primary hover:shadow-lg hover:shadow-primary/20 group cursor-pointer"
+              >
+                Get in Touch
+                <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </RouterLink>
+            )}
           </div>
         </div>
 

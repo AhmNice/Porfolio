@@ -1,51 +1,28 @@
-import React, { useEffect } from "react";
-import { ArrowRight, Sparkles, Eye } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, Sparkles, Eye, Loader2 } from "lucide-react";
 import FeaturedCard from "./card/Featured_card";
 import { useNavigate } from "react-router-dom";
+import { useProjectStore } from "../store/project.store";
 
 const Featured = () => {
   const sectionRef = React.useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = React.useState(false);
+  const navigate = useNavigate();
 
-  const projects = [
-    {
-      title: "E-Commerce Platform",
-      description:
-        "A modern web application built with React and TypeScript, featuring real-time inventory management and payment processing.",
-      imageUrl:
-        "https://plus.unsplash.com/premium_photo-1711051475117-f3a4d3ff6778?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: ["React", "TypeScript", "Node.js"],
-      link: {
-        source_code: "#",
-        live_demo: "#",
-      },
-    },
-    {
-      title: "Mobile App",
-      description:
-        "Cross-platform mobile application built with React Native, delivering seamless user experiences on iOS and Android.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: ["React Native", "Expo", "Firebase"],
-      link: {
-        source_code: "#",
-        live_demo: "#",
-      },
-    },
-    {
-      title: "Dashboard Analytics",
-      description:
-        "Real-time analytics dashboard with interactive data visualizations and reporting capabilities.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: ["Vue.js", "D3.js", "Express"],
-      link: {
-        source_code: "#",
-        live_demo: "#",
-      },
-    },
-  ];
+  const { projects, loading, error, fetchProjects } = useProjectStore();
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch projects on mount
+  useEffect(() => {
+    const loadProjects = async () => {
+      setIsLoading(true);
+      await fetchProjects();
+      setIsLoading(false);
+    };
+    loadProjects();
+  }, [fetchProjects]);
+
+  // Intersection Observer for animation
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -62,7 +39,12 @@ const Featured = () => {
 
     return () => observer.disconnect();
   }, []);
-  const navigate = useNavigate()
+
+  // Filter only published projects for featured section
+  const featuredProjects = projects
+    .filter(project => project.status === "PUBLISHED")
+    .slice(0, 3); // Show only first 3 projects
+
   return (
     <section
       ref={sectionRef}
@@ -99,7 +81,7 @@ const Featured = () => {
               >
                 <span className="w-8 h-[2px] bg-primary hidden lg:block"></span>
                 <p className="font-mono text-label uppercase tracking-widest text-primary">
-                  Featured Project
+                  Featured Projects
                 </p>
               </div>
               <h2
@@ -129,38 +111,73 @@ const Featured = () => {
           </div>
         </div>
 
-        {/* Projects Grid */}
-        <div
-          className={`relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 transition-all duration-700 delay-300 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          {projects.map((project, index) => (
-            <div
-              key={index}
-              className="flex justify-center"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <FeaturedCard project={project} />
+        {/* Loading State */}
+        {isLoading || loading ? (
+          <div className="flex flex-col items-center justify-center min-h-[300px]">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <p className="text-sm text-on-surface-variant">Loading projects...</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
+            <p className="text-sm text-red-400">{error}</p>
+            <button
+              onClick={() => fetchProjects()}
+              className="mt-4 px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : featuredProjects.length > 0 ? (
+          <>
+            {/* Projects Grid */}
+            <div
+              className={`relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 transition-all duration-700 delay-300 ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
+            >
+              {featuredProjects.map((project, index) => (
+                <div
+                  key={project.id}
+                  className="flex justify-center"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <FeaturedCard project={project} index={index} />
+                </div>
+              ))}
+            </div>
 
-        {/* View More Button */}
-        <div
-          className={`relative z-10 flex justify-center transition-all duration-700 delay-500 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          <button
-            onClick={()=> navigate('/projects')}
-            className="group inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-surface-container/40 backdrop-blur-sm border border-outline-variant/10 text-on-surface font-heading text-sm transition-all duration-300 hover:border-primary/50 hover:text-primary hover:bg-surface-container/60 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5"
-          >
-            <Eye className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
-            <span>View All Projects</span>
-            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
-          </button>
-        </div>
+            {/* View More Button */}
+            <div
+              className={`relative z-10 flex justify-center transition-all duration-700 delay-500 ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
+            >
+              <button
+                onClick={() => navigate('/projects')}
+                className="group inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-surface-container/40 backdrop-blur-sm border border-outline-variant/10 text-on-surface font-heading text-sm transition-all duration-300 hover:border-primary/50 hover:text-primary hover:bg-surface-container/60 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5"
+              >
+                <Eye className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+                <span>View All Projects</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
+              </button>
+            </div>
+          </>
+        ) : (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
+            <div className="p-5 rounded-2xl bg-surface-container/40 border border-outline-variant/10 mb-4">
+              <Sparkles className="w-12 h-12 text-on-surface-variant/30" />
+            </div>
+            <h3 className="font-heading text-2xl font-bold text-on-surface mb-2">
+              No Projects Yet
+            </h3>
+            <p className="text-sm text-on-surface-variant max-w-sm">
+              Check back later for new and exciting projects.
+            </p>
+          </div>
+        )}
 
         {/* Decorative Bottom Line */}
         <div
