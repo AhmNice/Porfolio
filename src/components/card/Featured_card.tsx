@@ -9,12 +9,10 @@ interface FeaturedCardProps {
 
 const FeaturedCard = ({ project, index = 0 }: FeaturedCardProps) => {
   const {
-    id,
     name,
     slug,
     description,
     coverImage,
-    status,
     techStack,
     links,
     createdAt,
