@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { ArrowRight, Clock } from "lucide-react";
 import { useArticleStore } from "../store/article.store";
-import type { ArticleDTO } from "../interface/article.dto";
+
 
 const Blog = () => {
   const blogPosts = useArticleStore((state) => state.articles);

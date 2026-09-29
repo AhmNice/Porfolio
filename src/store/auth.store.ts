@@ -13,7 +13,7 @@ const initialState: AuthState = {
 interface AuthActions {
   reset: () => void;
 }
-export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
+export const useAuthStore = create<AuthState & AuthActions>((set,) => ({
   ...initialState,
   reset: () => set({ ...initialState }),
 }))

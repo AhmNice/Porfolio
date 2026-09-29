@@ -1,4 +1,4 @@
-import { Monitor, ExternalLink, Code, ArrowRight } from "lucide-react";
+import {  ExternalLink, Code, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { ProjectDTO } from "../../interface/project.dto";
 
