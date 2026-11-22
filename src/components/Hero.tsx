@@ -1,8 +1,17 @@
+import { Download } from "lucide-react";
 import Terminal from "./Terminal";
 
 const STACK = ["React", "React Native", "Node.js", "TypeScript", "PostgreSQL"] as const;
 
-const enter = (delaySeconds: number) => ({ animationDelay: `${delaySeconds}s` });
+// File lives in /public so it is served from the site root.
+const RESUME_URL = "/Musa_Muhammed_Awwal_Resume_FS.pdf";
+
+const enter = (delaySeconds: number): React.CSSProperties => ({
+  animationDelay: `${delaySeconds}s`,
+});
+
+const focusRing =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 const HeroBackground = () => (
   <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -18,7 +27,7 @@ const HeroBackground = () => (
       }}
     />
 
-    {/* One quiet glow, sitting behind the terminal. */}
+    {/* Two quiet glows, one behind the terminal and one opposite. */}
     <div
       className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-primary/5 blur-3xl motion-safe:animate-pulse"
       style={{ animationDuration: "8s" }}
@@ -39,10 +48,7 @@ const Hero = () => {
     >
       <HeroBackground />
 
-      <div
-        className="relative mt-10 w-full px-margin-mobile md:px-margin-laptop lg:px-margin-desktop"
-        style={{ maxWidth: "1280px" }}
-      >
+      <div className="relative mt-10 w-full max-w-[1280px] px-margin-mobile md:px-margin-laptop lg:px-margin-desktop">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-gutter">
           {/* Left: identity, value proposition, stack, actions */}
           <div className="flex flex-col gap-6 lg:col-span-7">
@@ -71,7 +77,7 @@ const Hero = () => {
 
               <h1
                 id="hero-heading"
-                className="font-heading text-headline-xl-mobile font-bold leading-none tracking-tight text-on-surface lg:text-headline-xl"
+                className="text-balance font-heading text-headline-xl-mobile font-bold leading-none tracking-tight text-on-surface lg:text-headline-xl"
               >
                 Muhammed Awwal
               </h1>
@@ -90,7 +96,10 @@ const Hero = () => {
               </p>
 
               {/* On mobile the CTAs come first so they stay above the fold. */}
-              <ul aria-label="Core technologies" className="flex flex-wrap gap-2 max-sm:order-last">
+              <ul
+                aria-label="Core technologies"
+                className="flex flex-wrap gap-2 max-sm:order-last"
+              >
                 {STACK.map((tech) => (
                   <li
                     key={tech}
@@ -101,19 +110,42 @@ const Hero = () => {
                 ))}
               </ul>
 
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+                {/* Primary */}
                 <a
                   href="#projects"
-                  className="rounded-lg bg-primary-container px-6 py-3 font-heading text-on-primary-container transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:hover:-translate-y-0.5"
+                  className={`rounded-lg bg-primary-container px-6 py-3 font-heading text-on-primary-container transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 motion-safe:hover:-translate-y-0.5 ${focusRing}`}
                 >
                   View projects
                 </a>
 
+                {/* Secondary */}
                 <a
                   href="#contact"
-                  className="rounded-lg border border-outline px-6 py-3 font-heading text-on-surface transition-all duration-300 hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:hover:-translate-y-0.5"
+                  className={`rounded-lg border border-outline px-6 py-3 font-heading text-on-surface transition-all duration-300 hover:border-primary hover:text-primary motion-safe:hover:-translate-y-0.5 ${focusRing}`}
                 >
                   Contact me
+                </a>
+
+                {/* Tertiary — resume download. aria-label clarifies the PDF + new-tab fallback for screen readers. */}
+                <a
+                  href={RESUME_URL}
+                  download="Musa_Muhammed_Awwal_Resume_FS.pdf"
+                  type="application/pdf"
+                  aria-label="Download CV (PDF, opens in new tab if download is blocked)"
+                  className={`group inline-flex items-center gap-2 rounded-lg px-4 py-3 font-heading text-on-surface-variant transition-colors duration-300 hover:text-primary ${focusRing}`}
+                >
+                  <Download
+                    className="h-4 w-4 transition-transform duration-300 motion-safe:group-hover:translate-y-0.5"
+                    aria-hidden="true"
+                  />
+                  Download CV
+                  <span
+                    aria-hidden="true"
+                    className="font-mono text-label-small text-on-surface-variant/60"
+                  >
+                    PDF
+                  </span>
                 </a>
               </div>
             </div>
@@ -121,7 +153,7 @@ const Hero = () => {
 
           {/* Right (below on mobile): terminal */}
           <div
-            className="w-full max-w-xl lg:col-span-5 lg:max-w-none motion-safe:animate-fade-in-right"
+            className="w-full max-w-xl motion-safe:animate-fade-in-right lg:col-span-5 lg:max-w-none"
             style={enter(0.3)}
           >
             <Terminal />
